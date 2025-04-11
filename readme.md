@@ -1,4 +1,4 @@
-# 🚀 Projeto de Fechamento Automático de Leilão (Auction Auto-Close)
+# 🚀 Projeto de Fechamento Automático de Leilão
 
 ## 📌 Objetivo
 
