@@ -1,17 +1,31 @@
-version: '3.8'
-
 services:
   app:
+    container_name: fullcycle-auction
     build:
-      dockerfile: Dockerfile
       context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     env_file:
       - cmd/auction/.env
+    depends_on:
+      - mongodb
+    restart: unless-stopped
     command: sh -c "/auction"
     networks:
       - localNetwork
+
+  test:
+    build: .
+    container_name: fullcycle-auction-test
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    env_file:
+      - cmd/auction/.env
+    command: go test ./... -v
+    networks:
+    - localNetwork
 
   mongodb:
     image: mongo:latest
@@ -22,8 +36,17 @@ services:
       - cmd/auction/.env
     volumes:
       - mongo-data:/data/db
+    restart: unless-stopped
     networks:
       - localNetwork
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+
 
 volumes:
   mongo-data:
